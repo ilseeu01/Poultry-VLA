@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poultry-VLA · 양계장 Vision-Language-Action 프로젝트 종합 보고</title>
+<style>
+  :root{--bg:#0f1419;--card:#1a212b;--ink:#e6edf3;--muted:#9fb0c0;--accent:#4ea1ff;--good:#3fb950;--bad:#f85149;--warn:#d29922;--line:#2d3744;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px 80px}
+  header{border-bottom:2px solid var(--line);padding-bottom:20px;margin-bottom:8px}
+  h1{font-size:30px;margin:0 0 6px} h2{font-size:23px;margin:38px 0 12px;color:var(--accent);border-left:4px solid var(--accent);padding-left:12px}
+  h3{font-size:18px;margin:22px 0 8px;color:#cfe3ff}
+  .sub{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin:14px 0}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#222c38;color:#cfe3ff}
+  code{background:#11161d;padding:2px 6px;border-radius:5px;font-size:13.5px;color:#ffd9a0}
+  pre{background:#0b0f14;border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;color:#d6e2ee}
+  .good{color:var(--good);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
+  .tag{display:inline-block;background:#243240;color:#9fd1ff;border-radius:20px;padding:2px 11px;font-size:12.5px;margin:2px 4px 2px 0}
+  .big{font-size:15.5px}
+  .step{display:flex;gap:12px;margin:8px 0}
+  .step .n{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent);color:#06223f;font-weight:700;display:flex;align-items:center;justify-content:center}
+  ul{margin:8px 0 8px 0;padding-left:22px} li{margin:4px 0}
+  .kpi{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}
+  .kpi div{flex:1;min-width:150px;background:#11161d;border:1px solid var(--line);border-radius:8px;padding:12px 14px;text-align:center}
+  .kpi .v{font-size:24px;font-weight:700;color:var(--accent)} .kpi .l{font-size:12.5px;color:var(--muted)}
+  .verdict{background:#13261a;border:1px solid #2ea043}
+  .verdict.bad{background:#2a1517;border-color:#a83a3a}
+  .verdict.warn{background:#2a2410;border-color:#9e7b1f}
+  footer{margin-top:50px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🐤 Poultry-VLA — 양계장 Vision-Language-Action 프로젝트</h1>
+  <div class="sub">IR 열화상 환경에서 OpenVLA-7B로 "죽은(차가운/파란) 병아리를 골라 바구니에 담기"를 학습 · 종합 보고서</div>
+  <div style="margin-top:10px">
+    <span class="tag">OpenVLA-7B + LoRA</span><span class="tag">LIBERO / robosuite</span>
+    <span class="tag">IR thermal rendering</span><span class="tag">RLDS</span><span class="tag">행동복제(BC)</span>
+  </div>
+</header>
+
+<div class="card verdict">
+  <b>한 줄 결론.</b> 데이터·평가 파이프라인은 <span class="good">정상</span>이며 모델은 죽은 병아리를 <b>1mm까지 정확히</b> 찾아간다.
+  최종 실패(파지 0%)의 원인은 데이터 부족이 <b>아니라</b>, <b>OpenVLA가 메모리·자기상태(proprioception) 없는 단일프레임 정책이라
+  "하강 단계 vs 들기 단계"를 구분하지 못해</b> 병아리 위에서 평균(제자리)을 예측하는 <b>구조적 한계</b>다.
+  <b>데이터 재구축은 불필요</b>하고, <b>학습 레시피(proprio + action chunking, OpenVLA-OFT)</b>만 교체하면 된다.
+</div>
+
+<h2>1. 프로젝트 개요</h2>
+<div class="card">
+  <p class="big"><b>과제.</b> LIBERO 시뮬레이터에서 로봇팔(Panda)이 IR 열화상으로 렌더된 양계장 바닥에서,
+  <b>살아있는(따뜻한·밝은) 병아리들 사이에서 죽은(차가운·파란) 병아리</b>를 골라 집어 바구니에 담는다.</p>
+  <ul>
+    <li><b>핵심 아이디어</b>: IR 카메라에서 저온체=파란색 → 사체 탐지. 살아있는 병아리는 체온으로 밝게 보임(distractor, wander로 배회).</li>
+    <li><b>언어 지시</b>: <code>"Pick up the blue chick and place it in the basket"</code></li>
+    <li><b>관측</b>: 256×256 agentview RGB → thermal 후처리(컬러바 포함) → 모델 입력 224×224</li>
+    <li><b>액션</b>: 7차원 (eef Δxyz + Δ회전3 + 그리퍼)</li>
+    <li><b>학습</b>: 스크립트 컨트롤러로 성공 데모 수집 → RLDS 변환 → OpenVLA-7B LoRA fine-tune → 평가</li>
+  </ul>
+</div>
+
+<h2>2. 엔드투엔드 파이프라인</h2>
+<div class="card">
+<pre>① 장면 생성        generate_chicken_farm_bddl.py   (랜덤 배치: 따뜻한 7 + 죽은 1, seed별)
+② 데모 수집        scripted_blue_chick.py          (P-control 컨트롤러 + 살아있는 병아리 wander)
+   (6워커 병렬)     collect_blue_chick_demos.py     → 성공 궤적만 HDF5 저장 (thermal 적용)
+③ RLDS 변환        blue_chick_thermal_dataset_builder.py  (no-op 필터링, LIBERO 호환 스키마)
+④ Fine-tune        finetune.py (LoRA r32) + train_v3.sh   (어댑터 스냅샷 방식으로 디스크 절약)
+⑤ 병합·평가        merge_adapter.py → eval_trainscene.py  (학습분포 일치 평가, 파지/성공 추적)</pre>
+</div>
+
+<h2>3. 우리가 한 일 (요약)</h2>
+<div class="card">
+  <div class="step"><div class="n">A</div><div><b>환경·자산 구축</b>: 양계장 BDDL 생성기, IR thermal 렌더(<code>thermal_fx.py</code>), 병아리 wander 시스템, 스크립트 grasp 컨트롤러, 6워커 병렬 수집.</div></div>
+  <div class="step"><div class="n">B</div><div><b>데이터셋</b>: 성공 데모 200+개 수집 → no-op 필터 RLDS. (구버전 100개 → 신버전 204개)</div></div>
+  <div class="step"><div class="n">C</div><div><b>학습</b>: OpenVLA-7B LoRA 30k step 수회. 디스크 폭발(병합본 누적) 문제를 <b>어댑터 스냅샷 방식</b>으로 해결.</div></div>
+  <div class="step"><div class="n">D</div><div><b>심층 진단</b>: 8종 진단 스크립트로 0% 원인을 층층이 규명(아래 5절). 평가 파이프라인 버그 다수 수정.</div></div>
+  <div class="step"><div class="n">E</div><div><b>개선(v3)</b>: 컨트롤러 게인 완화(부드러운 액션), goal 1마리 축소, 평가를 학습분포에 일치. → 위치추정 해결, 파지 원인까지 규명.</div></div>
+</div>
+
+<h2>4. 결과 — 어디까지 갔나</h2>
+<div class="kpi">
+  <div><div class="v">~5mm</div><div class="l">학습이미지 액션예측 오차<br>(모델 학습 성공 증거)</div></div>
+  <div><div class="v">8.3cm→1mm</div><div class="l">위치추정 오차<br>(평가를 학습분포로 일치 후)</div></div>
+  <div><div class="v" style="color:var(--bad)">0%</div><div class="l">파지(grasp) 성공률<br>(최종 미해결 블로커)</div></div>
+  <div><div class="v">4→1</div><div class="l">규명·해결된 실패원인 층<br>(3개 해결, 1개 구조적)</div></div>
+</div>
+<table>
+  <tr><th>단계</th><th>구성</th><th>결과</th></tr>
+  <tr><td>v1/v2</td><td>거친 액션(게인8), 3마리 goal, 평가 OOD</td><td class="bad">0% — 로봇 정지</td></tr>
+  <tr><td>진단</td><td>in-dist 예측 / 좌우반전 / thermal해상도 / 폐루프 추적</td><td class="good">근본원인 층층이 규명</td></tr>
+  <tr><td>v3</td><td>부드러운 액션(게인4/6), 1마리, 평가=학습분포</td><td class="warn">위치 1mm 도달, 파지 0% (구조적 원인)</td></tr>
+</table>
+
+<h2>5. 실패 원인 분석 (핵심)</h2>
+<p>0%의 원인은 단일 버그가 아니라 <b>4겹</b>이었고, 앞 3겹은 해결, 마지막 1겹이 구조적 한계다.</p>
+<table>
+  <tr><th>#</th><th>원인</th><th>증거</th><th>상태</th></tr>
+  <tr><td>1</td><td><b>이미지 좌우 반전</b> — 수집 <code>[::-1]</code> vs 평가 <code>[::-1,::-1]</code></td><td>반전 입력 시 모델 Y축 예측 부호 뒤집힘 (+0.5→−0.498)</td><td class="good">수정</td></tr>
+  <tr><td>2</td><td><b>thermal 해상도 불일치</b> — 학습 256 / 평가 224에서 적용</td><td>thermal@224면 예측 약화(Y −0.5→−0.06), @256이면 정상</td><td class="good">수정</td></tr>
+  <tr><td>3</td><td><b>평가 셋업 OOD</b> — 고정 BDDL + 정지 병아리</td><td>고정장면 8.3cm vs 학습분포(랜덤+wander) 1mm</td><td class="good">평가 일치로 해결</td></tr>
+  <tr><td>4</td><td><b class="bad">파지 단계 모호성</b> — 메모리·proprio 없는 단일스텝 정책</td><td>병아리 위에서 하강 안 함(z=0.30 고정), 그리퍼 안 닫힘</td><td class="bad">미해결(구조적)</td></tr>
+</table>
+
+<h3>최종 근본원인 — 데이터가 증명한 "시간적 모호성"</h3>
+<div class="card">
+  <p>핵심 발견: <b>병아리 2cm 이내라는 같은 위치에서, 정답 액션이 그리퍼 단계에 따라 정반대</b>다.</p>
+  <table>
+    <tr><th>병아리 2cm 이내 (학습 데이터 204 데모)</th><th>z-action 평균</th><th>방향</th></tr>
+    <tr><td>그리퍼 <b>열림</b> (파지 전: 접근/하강)</td><td>−0.297</td><td><b>99.9% 하강</b></td></tr>
+    <tr><td>그리퍼 <b>닫힘</b> (파지 후: 들기)</td><td>+0.333</td><td><b>73.5% 상승</b></td></tr>
+  </table>
+  <p>그런데 두 순간의 <b>카메라 이미지는 거의 동일</b>(그리퍼가 병아리 위)하다. OpenVLA는 (a)메모리 없는 단일프레임,
+  (b)자기 그리퍼 상태·높이(proprioception) 미입력 → <b>"지금 하강 단계인지 들기 단계인지"를 알 방법이 없다.</b>
+  같은 이미지에 정답이 −0.3과 +0.3으로 갈리니 모델은 <b>평균(≈0)을 예측 → 제자리 맴돔</b>. 그리퍼도 마찬가지로
+  드문 "닫기 결정"(데모당 1회 = 전체의 <b>0.49%</b>)을 못 잡고 다수 상태(열림)로 회귀한다.</p>
+  <p class="big">→ <b>데이터엔 하강(54%)·닫기(46%)가 충분히 있다. 모델이 단계를 구분할 입력이 없는 게 문제다.</b></p>
+</div>
+
+<h2>6. 핵심 진단 증거</h2>
+<div class="card">
+  <ul>
+    <li><b>모델은 학습 성공</b>: 학습 이미지를 직접 넣으면 정답 위치 액션을 오차 ~5mm로 예측 → 데이터 양/학습량 문제 아님.</li>
+    <li><b>거친(bang-bang) 액션</b>: 옛 컨트롤러(게인8) 액션의 48.7%가 ±0.5 포화 → 게인 완화(4/6)로 36%·중앙값 0.49→0.37, 에피소드 622→203스텝.</li>
+    <li><b>위치추정 회복</b>: 평가를 학습분포(랜덤 장면+wander, thermal@256, <code>[::-1]</code>)로 맞추자 8.3cm→1mm.</li>
+    <li><b>파지 폐루프 추적</b>: 모델이 병아리 2cm까지 가지만 <b>하강 안 하고 z=0.30에 떠서</b> 맴돌고, 그리퍼는 내내 열림(1.00).</li>
+    <li><b>제외된 가설</b>: 데이터 양(100↔200), 학습시간(15k↔30k), no-op비율, 렌더엔진, thermal 비결정성, 그리퍼 부호 — 모두 원인 아님(검증 완료).</li>
+  </ul>
+  <p class="sub">상세 수치·로그는 <code>docs/FAILURE_ANALYSIS.md</code> 및 <code>diagnostics/</code> 스크립트 참조.</p>
+</div>
+
+<h2>7. 성공하려면 — 해결 방법 (확률 높은 순)</h2>
+<table>
+  <tr><th>순위</th><th>해결책</th><th>왜</th></tr>
+  <tr><td>🥇</td><td><b>proprioception 입력 추가</b> (그리퍼 상태 + eef 높이)</td><td>"열림→하강 단계 / 닫힘→들기 단계"를 모델이 즉시 구분 → 5절 모호성 <b>원리적 해소</b></td></tr>
+  <tr><td>🥈</td><td><b>action chunking</b> (미래 K스텝 예측)</td><td>드문 "닫기 결정"(0.49%)을 청크로 commit → 타이밍/dithering 해결</td></tr>
+  <tr><td>🥉</td><td><b>OpenVLA-OFT 재학습</b> (1+2 통합 + 연속 L1 액션헤드)</td><td>proprio·청크·연속액션 동시 도입, 이산화 한계까지 해결. 가장 정공법.</td></tr>
+  <tr><td>보조</td><td>그리퍼를 따뜻한 색으로 렌더 / 타깃 대비 강화</td><td>thermal에서 그리퍼+사체가 둘 다 파랑이라 합쳐지는 문제 완화</td></tr>
+</table>
+
+<h2>8. "조금만 더?" vs "데이터부터 재구축?" — 정직한 평가</h2>
+<div class="card verdict warn">
+  <p class="big"><b>데이터부터 재구축할 필요는 없다.</b> 다만 "하이퍼파라미터 한 번 더"로 끝나는 수준도 아니다 —
+  <b>학습 아키텍처(레시피)를 OpenVLA-OFT로 교체</b>하는 중간 규모 작업이 남았다.</p>
+  <table>
+    <tr><th>자산</th><th>상태</th></tr>
+    <tr><td>장면 생성기 · thermal 렌더 · wander</td><td class="good">완성 · 재사용</td></tr>
+    <tr><td>데모 데이터 204개 + RLDS (하강 54%·닫기 46% 신호 확인됨)</td><td class="good">정상 · 재사용 (재구축 불필요)</td></tr>
+    <tr><td>평가 파이프라인 (학습분포 일치, 파지/성공 추적)</td><td class="good">완성 · 재사용</td></tr>
+    <tr><td>실패 원인 진단</td><td class="good">완료 (근본원인 확정)</td></tr>
+    <tr><td><b>남은 일</b>: proprio + action chunking (OpenVLA-OFT)로 재-fine-tune</td><td class="warn">미완 (핵심 한 가지)</td></tr>
+  </table>
+  <p><b>예상 노력</b>: 데이터·평가·진단이 끝나 있으므로, OpenVLA-OFT 세팅 + 재학습 + 평가의 <b>약 1~3일 엔지니어링</b>.
+  근본원인이 명확하고 데이터가 탄탄하므로 <b>성공 확률은 높다</b>고 판단.</p>
+</div>
+
+<h2>9. 코드 구조 (이 레포)</h2>
+<pre>Poultry-VLA/
+├── index.html                         이 보고서
+├── data_pipeline/                     장면 생성 · 데모 수집 · 컨트롤러 · thermal
+│   ├── generate_chicken_farm_bddl.py  랜덤 양계장 BDDL 생성기
+│   ├── scripted_blue_chick.py         P-control grasp 컨트롤러 + 병아리 wander
+│   ├── collect_blue_chick_demos.py    6워커 병렬 성공데모 수집
+│   └── thermal_fx.py                  IR 열화상 후처리 (컬러바)
+├── rlds/blue_chick_thermal_dataset_builder.py   HDF5→RLDS + no-op 필터
+├── training/                          finetune.py(어댑터스냅샷) · train_v3.sh · merge_adapter.py
+├── eval/                              run_libero_eval.py(수정) · eval_trainscene.py · eval_ckpt.sh
+├── diagnostics/                       diag_*.py (8종 진단) · review_demos.py
+└── docs/FAILURE_ANALYSIS.md           상세 실패 분석</pre>
+<p class="sub">참고: <code>training/finetune.py</code>, <code>eval/run_libero_eval.py</code>는 OpenVLA 원본을 본 과제에 맞게 수정한 버전
+(어댑터 스냅샷 저장, thermal@256 관측, <code>[::-1]</code> 방향 등). 실행에는 OpenVLA / LIBERO 환경이 필요.</p>
+
+<h2>10. 결론</h2>
+<div class="card">
+  <p>양계장 VLA는 "데이터가 부족해서" 실패한 것이 아니다. 일련의 <b>학습/추론 관측 불일치(방향·thermal해상도·장면분포)</b>를
+  바로잡자 모델은 <b>죽은 병아리를 1mm까지 정확히 찾아갔다.</b> 마지막 남은 벽은 <b>파지</b>이며, 그 원인은
+  <b>메모리·proprioception 없는 단일프레임 정책이 "하강 vs 들기" 단계를 구분 못 해 평균(제자리)을 내는</b>,
+  단일스텝 행동복제의 구조적 한계임을 데이터로 증명했다.</p>
+  <p class="big">→ <b>해결책은 proprioception + action chunking(OpenVLA-OFT). 데이터는 그대로 재사용.</b></p>
+  <p class="sub">시사점: VLA 평가 실패의 상당 부분은 정책 학습 실패가 아니라 <b>(1) 학습/평가 관측·분포 불일치</b>와
+  <b>(2) 단일스텝·무(無)proprio 정책의 시간적 모호성</b>에서 온다 — 이 진단 방법론 자체가 본 프로젝트의 기여다.</p>
+</div>
+
+<footer>
+  Poultry-VLA · OpenVLA-7B + LIBERO + IR thermal · 종합 보고서 ·
+  <a href="https://github.com/ilseeu01/Poultry-VLA">github.com/ilseeu01/Poultry-VLA</a>
+</footer>
+</div>
+</body>
+</html>

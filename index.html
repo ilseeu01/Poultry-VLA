@@ -53,6 +53,24 @@
   <b>데이터 재구축은 불필요</b>하고, <b>학습 레시피(proprio + action chunking, OpenVLA-OFT)</b>만 교체하면 된다.
 </div>
 
+<h2>🎬 데모 영상</h2>
+<div class="card">
+  <p style="text-align:center"><b>우리가 만든 데이터 — 스크립트 컨트롤러 성공 데모 100개 (동시 재생)</b></p>
+  <p style="text-align:center"><img src="assets/data_demos.gif" style="max-width:560px;width:100%;border-radius:8px"></p>
+  <p class="sub" style="text-align:center">각 장면은 seed별 랜덤 배치 + 살아있는 병아리 배회(wander). IR 열화상에서 사체=파랑, 생체=밝음.</p>
+  <table style="margin-top:10px">
+    <tr><th style="text-align:center;width:50%">✅ 성공 데모 (학습 데이터)</th><th style="text-align:center">❌ 실패한 추론 (학습된 모델)</th></tr>
+    <tr>
+      <td style="text-align:center"><img src="assets/success_demo.gif" style="max-width:240px;width:100%;border-radius:6px"></td>
+      <td style="text-align:center"><img src="assets/inference_fail.gif" style="max-width:240px;width:100%;border-radius:6px"></td>
+    </tr>
+    <tr>
+      <td style="text-align:center" class="good">파란 병아리를 집어 바구니에 안착</td>
+      <td style="text-align:center" class="bad">병아리 위 1mm까지 가지만 하강·파지 못 함</td>
+    </tr>
+  </table>
+</div>
+
 <h2>1. 프로젝트 개요</h2>
 <div class="card">
   <p class="big"><b>과제.</b> LIBERO 시뮬레이터에서 로봇팔(Panda)이 IR 열화상으로 렌더된 양계장 바닥에서,

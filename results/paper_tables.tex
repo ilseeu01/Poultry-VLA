@@ -1,0 +1,180 @@
+% =====================================================================
+%  Poultry-VLA : 논문용 표 모음 (booktabs)
+%  컴파일: xelatex paper_tables.tex   (한글 캡션 → kotex/xelatex 권장)
+%          또는 pdflatex (kotex 설치 시)
+%  표만 본문에 복사해서 쓸 경우 \begin{table}...\end{table} 블록만 가져가면 됨.
+%  수치 출처: openvla_ckpts/runs_oft/eval_wd_sweep/*.jsonl 직접 집계
+% =====================================================================
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{kotex}      % 한글 캡션용 (xelatex/lualatex 또는 pdflatex+kotex)
+
+\newcommand{\best}[1]{\textbf{#1}}
+
+\begin{document}
+
+% =====================================================================
+% Table 1 — 대문(headline) 요약표 : 영문 전용, 캡션 폭 = 표 폭
+% =====================================================================
+\begin{table}[t]
+\centering
+\renewcommand{\arraystretch}{1.15}
+\sbox0{\begin{tabular}{l l c c}
+\toprule
+Stage & Key change & Grasp & Full task \\
+\midrule
+Base                 & multi-view RGB, proprio       & 0/8          & 0\% \\
+OFT                  & action chunking               & 0/8          & 0\% \\
+Wrist depth          & wrist (z-depth)               & 0/8          & 0\% \\
+\best{DAgger}        & on-policy relabeling          & \best{7/8}   & 0\% \\
+\midrule
+Firm-hold            & friction, inertia $\uparrow$  & 12/16        & 75\% \\
+\best{Thick capsule} & grasp capsule $\uparrow$      & \best{17/18} & \best{94\%} \\
+\bottomrule
+\end{tabular}}%
+\begin{minipage}{\wd0}
+\caption{핵심 요약. 단독(solo) VLA가 죽은 병아리 pick-and-place를
+$0\%\!\to\!94\%$까지 끌어올린 경로. 상단 4행(정책 능력)은 grasp을 회복시키고,
+하단 2행(객체 물리)은 파지된 객체를 끝까지 운반·투하시킨다.}
+\label{tab:headline}
+\centering
+\usebox0
+\end{minipage}
+\end{table}
+
+% =====================================================================
+% Table 2 — 메인: 실패 → 성공 경로
+% =====================================================================
+\begin{table}[t]
+\centering
+\caption{단독(solo) VLA의 죽은 병아리 pick-and-place 성공률 추이.
+관측·구조 보강만으로는 grasp을 회복하지 못하나(1--2행), DAgger가 폐루프
+grasp 실행을 회복하고(3행), 시뮬레이션 객체를 물리적으로 graspable하게
+만들면(4--5행) full-task 성공률이 $0\to94\%$에 도달한다.
+모든 평가는 스크립트 매크로 없이 VLA 단독, 학습 분포(train-distribution)
+조건, 단일 병아리 장면이다.}
+\label{tab:main}
+\begin{tabular}{c l l c c}
+\toprule
+\# & 단계 (Stage) & 핵심 변경 (Key change) & Grasp & Full-task \\
+\midrule
+1 & Base / OFT               & multi-view RGB $+$ proprio $+$ action chunking & 0/8  & 0/8 \\
+2 & $+$ wrist depth          & wrist 입력 슬롯 $\to$ z-depth                  & 0/8  & 0/8 \\
+3 & \best{$+$ DAgger}        & on-policy 전문가 재라벨링                       & 7/8  & 0/8 \\
+4 & $+$ firm-hold            & 마찰 $2.0\!\to\!6.0$, 관성 $5\mathrm{e}{-}5\!\to\!4\mathrm{e}{-}4$ & 12/16 & 12/16~(75\%) \\
+5 & \best{$+$ thick capsule} & grasp 캡슐 $0.013\!\to\!0.018$                 & \best{17/18} & \best{17/18~(94\%)} \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+{\footnotesize
+\begin{flushleft}
+$\dagger$ 1행은 멀티뷰\,/\,depth\,/\,affordance\,/\,컨트롤러 재설계 등 grasp $=0$인
+모든 사전 시도의 대표값이다. \\
+$\ddagger$ 4--5행은 동일한 DAgger 정책(정책 고정)에서 객체 물리만 변경한 것이다.
+grasp 캡슐은 \texttt{alpha}$=0$이라 렌더 이미지가 byte-identical $\Rightarrow$
+동일 정책을 합당한 객체에서 측정한 결과이다. \\
+$\S$ 94\% 런의 투하 정밀도: 중앙값 $1.95$\,cm, 최대 $4.93$\,cm, 전부 $\le 5$\,cm,
+grasp$\to$안착 $17/17 = 100\%$.
+\end{flushleft}}
+\end{table}
+
+
+% =====================================================================
+% Table 2 — 관측 / 구조 보강 ablation (음성 결과)
+% =====================================================================
+\begin{table}[t]
+\centering
+\caption{관측·구조 보강 ablation. 입력을 멀티뷰 RGB, wrist depth,
+proprioception, action chunking으로 확장해도 grasp을 회복하지 못한다.
+능력 회복은 입력 보강이 아니라 on-policy 학습(DAgger)에서 비롯되었다.}
+\label{tab:obs}
+\begin{tabular}{l l c c}
+\toprule
+방법 (Method) & 입력 (Inputs) & Grasp & Full-task \\
+\midrule
+Base (OpenVLA)        & agentview RGB ($1\times$)               & 0/8 & 0/8 \\
+OFT multi-view (2a)   & agentview $+$ wrist RGB, proprio, chunk  & 0/8 & 0/8 \\
+OFT $+$ wrist depth (2b) & wrist 슬롯 $\to$ z-depth              & 0/8 & 0/8 \\
+grasp-affordance      & 얇고 긴 grasp 타깃 캡슐                  & 0/8 & 0/8 \\
+\midrule
+\best{$+$ DAgger}     & (동일 입력)                              & \best{7--8/10} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% =====================================================================
+% Table 3 — 객체 물리 ablation
+% =====================================================================
+\begin{table}[t]
+\centering
+\caption{객체 물리 ablation (DAgger 정책 고정). 죽은 병아리의 마찰·관성과
+grasp 캡슐 두께를 합리적 범위로 조정하면 full-task 성공률이 단조 증가한다.
+시뮬레이션 manipulation이 객체의 마찰·관성·접촉 기하에 민감함을 보인다.}
+\label{tab:physics}
+\begin{tabular}{l S[table-format=1.1] c S[table-format=1.3] c}
+\toprule
+객체 설정 & {마찰} & 관성 & {캡슐 $r$} & Full-task \\
+\midrule
+slippery (원본 aff) & 2.0 & $5\mathrm{e}{-}5$ & 0.013 & 9/16~(56\%) \\
+firm-hold           & 6.0 & $4\mathrm{e}{-}4$ & 0.013 & 12/16~(75\%) \\
+\best{firm $+$ thick} & 6.0 & $4\mathrm{e}{-}4$ & 0.018 & \best{17/18~(94\%)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% =====================================================================
+% Table 4 — 배포 변형 비교
+% =====================================================================
+\begin{table}[t]
+\centering
+\caption{배포 변형 비교. 단독 VLA와 하이브리드(VLA navigation $+$ 스크립트
+매크로 grasp/운반) 시스템의 task 성공률. 학습된 핸드오프 트리거
+(ResNet18, val AUC $0.986$)는 시뮬 정보 없이 관측만으로 핸드오프를 결정한다.}
+\label{tab:deploy}
+\begin{tabular}{l c c c}
+\toprule
+시스템 & NAV & Grasp $+$ 운반 & 성공률 \\
+\midrule
+VLA solo (firm $+$ thick)   & VLA & VLA        & 17/18~(94\%) \\
+Hybrid (고정 핸드오프)       & VLA & 매크로      & 7/8~(87.5\%) \\
+\best{Hybrid $+$ 학습 트리거} & VLA & 매크로      & \best{8/8~(100\%)} \\
+Postgrasp hybrid            & VLA & 매크로 운반  & 6/10~(60\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% =====================================================================
+% Table 5 — 진단 체인 (failure mode → 원인 → 수정 → 효과)
+% =====================================================================
+\begin{table}[t]
+\centering
+\caption{진단 체인. 단독 VLA가 task를 풀기까지 식별·교정한 실패 모드와
+근본 원인. 각 수정은 독립적으로 검증되었으며, 마지막 두 행(폐루프 실행,
+객체 물리)이 $0\to94\%$ 도약을 만들었다.}
+\label{tab:diag}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.20\linewidth}
+                >{\raggedright\arraybackslash}p{0.28\linewidth}
+                >{\raggedright\arraybackslash}p{0.28\linewidth}
+                >{\raggedright\arraybackslash}p{0.14\linewidth}}
+\toprule
+증상 (Symptom) & 근본 원인 (Root cause) & 수정 (Fix) & 효과 \\
+\midrule
+로봇 정지(no-op) & 평가 이미지 좌우 반전 $\Rightarrow$ Y축 부호 반전 & 수집과 동일하게 상하 반전만 적용 & 동작 회복 \\
+약한 예측 & thermal 해상도/순서 불일치(OOD) & 256에서 thermal 후 224 리사이즈 & 예측 강화 \\
+localization 8\,cm & 고정 BDDL $+$ 정지 병아리(평가 OOD) & 학습 분포(랜덤 장면 $+$ wander)로 평가 & 1\,mm 도달 \\
+grasp 미실행 & bang-bang 거친 액션 $\Rightarrow$ fine grasp 불능 & \best{DAgger} (on-policy 재라벨) & grasp $0\to8/10$ \\
+운반 중 슬립 & 객체 관성 작음 $+$ 얇은 캡슐 & \best{firm-hold $+$ thick capsule} & full $0\to94\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}

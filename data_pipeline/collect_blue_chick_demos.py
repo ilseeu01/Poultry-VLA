@@ -6,9 +6,12 @@
 3. success한 episode만 채택
 
 사용 예:
-    cd /home/capstone/openvla
-    python experiments/robot/libero/collect_blue_chick_demos.py \
+    python data_pipeline/collect_blue_chick_demos.py \
         --n-demos 50 --out-dir demos/blue_chick_v1
+
+LIBERO 위치는 환경변수 LIBERO_DIR 로 지정 가능. 미지정 시 설치된 libero
+패키지 위치에서 자동 탐지한다 (setup.sh 가 generate_chicken_farm_bddl.py 를
+<LIBERO_DIR>/scripts/ 로 복사해 둠).
 """
 import argparse
 import os
@@ -16,7 +19,20 @@ import subprocess
 import sys
 import time
 
-LIBERO_DIR = "/home/capstone/LIBERO"
+
+def _detect_libero_dir():
+    """LIBERO 루트 경로 탐지: env LIBERO_DIR > 설치된 libero 패키지 위치 > 기본값."""
+    if os.environ.get("LIBERO_DIR"):
+        return os.environ["LIBERO_DIR"]
+    try:
+        import libero
+        # <LIBERO_DIR>/libero/__init__.py -> 위로 두 단계
+        return os.path.dirname(os.path.dirname(os.path.abspath(libero.__file__)))
+    except Exception:
+        return "/home/capstone/LIBERO"
+
+
+LIBERO_DIR = _detect_libero_dir()
 GENERATOR = os.path.join(LIBERO_DIR, "scripts", "generate_chicken_farm_bddl.py")
 CONTROLLER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripted_blue_chick.py")
 BDDL_BASENAME = "pick_up_the_blue_chick_and_place_it_in_the_basket.bddl"

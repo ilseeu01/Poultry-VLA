@@ -1,0 +1,17 @@
+# Poultry-VLA — 스크립트 시뮬레이션(데모 수집/렌더) 실행에 필요한 패키지.
+# 검증 환경: Python 3.10, Linux, osmesa 렌더 백엔드.
+# LIBERO 자체는 setup.sh 가 핀된 커밋으로 설치한다 (아래 패키지는 그 의존성).
+#
+# 모델 학습/추론(OpenVLA-OFT, DAgger, OFT eval)은 별도 무거운 스택(torch, flash-attn,
+# tensorflow, transformers 포크)이 필요하며 본 requirements 범위 밖이다. training/ ·
+# eval/ 의 OFT 코드는 참고용이며 체크포인트는 저장소에 포함되지 않는다(README 참조).
+
+numpy==1.26.4
+mujoco==3.8.0
+robosuite==1.4.1
+bddl==3.6.0
+scipy>=1.10
+imageio>=2.30
+imageio-ffmpeg>=0.4.9
+Pillow>=10.0
+h5py>=3.8

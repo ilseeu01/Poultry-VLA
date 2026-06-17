@@ -1,0 +1,43 @@
+<mujoco model="dead_chick">
+  <asset>
+    <!-- chick_crouching mesh를 재사용 (앉아있는 자세 = 사체) -->
+    <mesh name="dead_chick_vis" file="Chick_crouching.stl" scale="0.00124 0.00124 0.00124"/>
+    <mesh name="dead_chick_col" file="Chick_crouching.stl" scale="0.00124 0.00124 0.00124" maxhullvert="64"/>
+    <!-- IR 타겟(죽은) 개체: thermal_fx 컬러맵에서 26~31°C(보라~자홍) 대역으로 매핑되도록
+         중간 밝기 albedo. 차가운 배경(팔/바닥/바구니)보다 밝아 또렷한 blob으로 보임.
+         (컬러맵은 hue를 버리고 밝기만 쓰므로 rgba hue 자체는 최종색과 무관) -->
+    <material name="dead_chick_mat" rgba="0.40 0.42 0.50 1.0" emission="0.12" specular="0.0" shininess="0.0"/>
+  </asset>
+
+  <!-- VLA가 metadata로 읽을 수 있는 온도 태그.
+       살아있는 닭: ~41°C, 사체: 주변 온도(~20°C). -->
+  <custom>
+    <numeric name="body_temperature_celsius" data="20.0"/>
+    <numeric name="is_alive" data="0"/>
+  </custom>
+
+  <worldbody>
+    <body>
+      <body name="object">
+        <!-- 사체는 무게중심 그대로 (서 있을 필요 없음). 회전 관성도 작게 → 잡으면 잘 굴러감 -->
+        <inertial pos="0 0 0.012" mass="0.1" diaginertia="4e-4 4e-4 4e-4"/>
+
+        <geom type="mesh" mesh="dead_chick_vis" material="dead_chick_mat"
+              friction="1.2 0.3 0.05"
+              conaffinity="0" contype="0" group="1"/>
+
+        <!-- Grasp affordance (v4 실험): 그리퍼가 ~2cm 부정확해도 잡히게 *얇고 길게*.
+             r=0.013(지름 2.6cm) → 8cm 그리퍼 straddle 여유 (0.04-0.013)=2.7cm (기존 1.8cm).
+             half-len=0.028(높이 ~8.2cm) → eef 높이 오차에도 측면 접촉(Z 관용↑).
+             원본 캡슐 size="0.022 0.015" pos z=0.020 (dead_chick.xml.bak). -->
+        <geom type="capsule" size="0.018 0.028" pos="0 0 0.024"
+              density="0" friction="6.0 2.0 0.5"
+              solimp="0.98 0.999 0.001 0.5 2" solref="0.005 1"
+              group="0" rgba="0.8 0.8 0.8 0"/>
+      </body>
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0"          name="bottom_site"/>
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.070"      name="top_site"/>
+      <site rgba="0 0 0 0" size="0.005" pos="0.030 0.030 0"  name="horizontal_radius_site"/>
+    </body>
+  </worldbody>
+</mujoco>

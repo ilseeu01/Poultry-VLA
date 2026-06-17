@@ -1,0 +1,677 @@
+(define (problem LIBERO_Floor_Manipulation)
+  (:domain robosuite)
+  (:language Pick up the blue chick and place it in the basket)
+    (:regions
+      (basket_1_init_region
+          (:target floor)
+          (:ranges (
+              (-0.140 -0.025 -0.086 0.029)
+            )
+          )
+      )
+      (dead_chick_1_init_region
+          (:target floor)
+          (:ranges (
+              (-0.289 -0.228 -0.225 -0.164)
+            )
+          )
+      )
+      (dead_chick_2_init_region
+          (:target floor)
+          (:ranges (
+              (-0.350 -0.009 -0.286 0.055)
+            )
+          )
+      )
+      (dead_chick_3_init_region
+          (:target floor)
+          (:ranges (
+              (-0.284 0.108 -0.220 0.172)
+            )
+          )
+      )
+      (chick_1_init_region
+          (:target floor)
+          (:ranges (
+              (0.069 0.148 0.133 0.212)
+            )
+          )
+      )
+      (chick_2_init_region
+          (:target floor)
+          (:ranges (
+              (-0.441 -0.256 -0.377 -0.192)
+            )
+          )
+      )
+      (chick_3_init_region
+          (:target floor)
+          (:ranges (
+              (0.125 -0.045 0.189 0.019)
+            )
+          )
+      )
+      (chick_4_init_region
+          (:target floor)
+          (:ranges (
+              (-0.338 0.197 -0.274 0.261)
+            )
+          )
+      )
+      (chick_5_init_region
+          (:target floor)
+          (:ranges (
+              (-0.472 0.208 -0.408 0.272)
+            )
+          )
+      )
+      (chick_6_init_region
+          (:target floor)
+          (:ranges (
+              (0.138 -0.299 0.202 -0.235)
+            )
+          )
+      )
+      (chick_7_init_region
+          (:target floor)
+          (:ranges (
+              (-0.019 -0.316 0.045 -0.252)
+            )
+          )
+      )
+      (straw_1_init_region
+          (:target floor)
+          (:ranges (
+              (-0.412 -0.098 -0.398 -0.084)
+            )
+          )
+      )
+      (straw_2_init_region
+          (:target floor)
+          (:ranges (
+              (-0.462 -0.132 -0.448 -0.118)
+            )
+          )
+      )
+      (straw_3_init_region
+          (:target floor)
+          (:ranges (
+              (-0.265 0.257 -0.251 0.271)
+            )
+          )
+      )
+      (straw_4_init_region
+          (:target floor)
+          (:ranges (
+              (-0.304 0.327 -0.290 0.341)
+            )
+          )
+      )
+      (straw_5_init_region
+          (:target floor)
+          (:ranges (
+              (0.108 0.290 0.122 0.304)
+            )
+          )
+      )
+      (straw_6_init_region
+          (:target floor)
+          (:ranges (
+              (0.074 -0.248 0.088 -0.234)
+            )
+          )
+      )
+      (straw_7_init_region
+          (:target floor)
+          (:ranges (
+              (-0.388 -0.059 -0.374 -0.045)
+            )
+          )
+      )
+      (straw_8_init_region
+          (:target floor)
+          (:ranges (
+              (-0.223 0.332 -0.209 0.346)
+            )
+          )
+      )
+      (straw_9_init_region
+          (:target floor)
+          (:ranges (
+              (-0.287 -0.340 -0.273 -0.326)
+            )
+          )
+      )
+      (straw_10_init_region
+          (:target floor)
+          (:ranges (
+              (0.273 -0.224 0.287 -0.210)
+            )
+          )
+      )
+      (straw_11_init_region
+          (:target floor)
+          (:ranges (
+              (-0.403 0.266 -0.389 0.280)
+            )
+          )
+      )
+      (straw_12_init_region
+          (:target floor)
+          (:ranges (
+              (0.045 0.005 0.059 0.019)
+            )
+          )
+      )
+      (straw_13_init_region
+          (:target floor)
+          (:ranges (
+              (0.100 0.004 0.114 0.018)
+            )
+          )
+      )
+      (straw_14_init_region
+          (:target floor)
+          (:ranges (
+              (-0.350 -0.153 -0.336 -0.139)
+            )
+          )
+      )
+      (straw_15_init_region
+          (:target floor)
+          (:ranges (
+              (0.280 0.142 0.294 0.156)
+            )
+          )
+      )
+      (straw_16_init_region
+          (:target floor)
+          (:ranges (
+              (0.100 -0.217 0.114 -0.203)
+            )
+          )
+      )
+      (straw_17_init_region
+          (:target floor)
+          (:ranges (
+              (-0.362 -0.156 -0.348 -0.142)
+            )
+          )
+      )
+      (straw_18_init_region
+          (:target floor)
+          (:ranges (
+              (0.078 -0.266 0.092 -0.252)
+            )
+          )
+      )
+      (straw_19_init_region
+          (:target floor)
+          (:ranges (
+              (-0.320 -0.181 -0.306 -0.167)
+            )
+          )
+      )
+      (straw_20_init_region
+          (:target floor)
+          (:ranges (
+              (0.275 -0.098 0.289 -0.084)
+            )
+          )
+      )
+      (straw_21_init_region
+          (:target floor)
+          (:ranges (
+              (-0.083 -0.340 -0.069 -0.326)
+            )
+          )
+      )
+      (straw_22_init_region
+          (:target floor)
+          (:ranges (
+              (-0.238 -0.110 -0.224 -0.096)
+            )
+          )
+      )
+      (straw_23_init_region
+          (:target floor)
+          (:ranges (
+              (-0.092 0.270 -0.078 0.284)
+            )
+          )
+      )
+      (straw_24_init_region
+          (:target floor)
+          (:ranges (
+              (0.216 -0.034 0.230 -0.020)
+            )
+          )
+      )
+      (straw_25_init_region
+          (:target floor)
+          (:ranges (
+              (0.194 -0.342 0.208 -0.328)
+            )
+          )
+      )
+      (straw_26_init_region
+          (:target floor)
+          (:ranges (
+              (-0.228 0.055 -0.214 0.069)
+            )
+          )
+      )
+      (straw_27_init_region
+          (:target floor)
+          (:ranges (
+              (-0.243 0.010 -0.229 0.024)
+            )
+          )
+      )
+      (straw_28_init_region
+          (:target floor)
+          (:ranges (
+              (0.069 0.071 0.083 0.085)
+            )
+          )
+      )
+      (straw_29_init_region
+          (:target floor)
+          (:ranges (
+              (-0.034 0.241 -0.020 0.255)
+            )
+          )
+      )
+      (straw_30_init_region
+          (:target floor)
+          (:ranges (
+              (-0.202 0.327 -0.188 0.341)
+            )
+          )
+      )
+      (straw_31_init_region
+          (:target floor)
+          (:ranges (
+              (-0.308 0.167 -0.294 0.181)
+            )
+          )
+      )
+      (straw_32_init_region
+          (:target floor)
+          (:ranges (
+              (-0.428 0.277 -0.414 0.291)
+            )
+          )
+      )
+      (straw_33_init_region
+          (:target floor)
+          (:ranges (
+              (-0.479 0.182 -0.465 0.196)
+            )
+          )
+      )
+      (straw_34_init_region
+          (:target floor)
+          (:ranges (
+              (0.108 -0.094 0.122 -0.080)
+            )
+          )
+      )
+      (straw_35_init_region
+          (:target floor)
+          (:ranges (
+              (0.154 -0.117 0.168 -0.103)
+            )
+          )
+      )
+      (straw_36_init_region
+          (:target floor)
+          (:ranges (
+              (0.131 -0.141 0.145 -0.127)
+            )
+          )
+      )
+      (straw_37_init_region
+          (:target floor)
+          (:ranges (
+              (0.098 0.105 0.112 0.119)
+            )
+          )
+      )
+      (straw_38_init_region
+          (:target floor)
+          (:ranges (
+              (0.159 0.257 0.173 0.271)
+            )
+          )
+      )
+      (straw_39_init_region
+          (:target floor)
+          (:ranges (
+              (-0.017 0.314 -0.003 0.328)
+            )
+          )
+      )
+      (straw_40_init_region
+          (:target floor)
+          (:ranges (
+              (0.045 0.081 0.059 0.095)
+            )
+          )
+      )
+      (straw_41_init_region
+          (:target floor)
+          (:ranges (
+              (0.244 0.127 0.258 0.141)
+            )
+          )
+      )
+      (straw_42_init_region
+          (:target floor)
+          (:ranges (
+              (-0.095 -0.303 -0.081 -0.289)
+            )
+          )
+      )
+      (straw_43_init_region
+          (:target floor)
+          (:ranges (
+              (-0.009 -0.101 0.005 -0.087)
+            )
+          )
+      )
+      (straw_44_init_region
+          (:target floor)
+          (:ranges (
+              (-0.225 -0.080 -0.211 -0.066)
+            )
+          )
+      )
+      (straw_45_init_region
+          (:target floor)
+          (:ranges (
+              (0.221 -0.077 0.235 -0.063)
+            )
+          )
+      )
+      (straw_46_init_region
+          (:target floor)
+          (:ranges (
+              (0.145 -0.339 0.159 -0.325)
+            )
+          )
+      )
+      (straw_47_init_region
+          (:target floor)
+          (:ranges (
+              (-0.215 0.148 -0.201 0.162)
+            )
+          )
+      )
+      (straw_48_init_region
+          (:target floor)
+          (:ranges (
+              (0.221 0.008 0.235 0.022)
+            )
+          )
+      )
+      (straw_49_init_region
+          (:target floor)
+          (:ranges (
+              (-0.302 -0.247 -0.288 -0.233)
+            )
+          )
+      )
+      (straw_50_init_region
+          (:target floor)
+          (:ranges (
+              (0.263 -0.180 0.277 -0.166)
+            )
+          )
+      )
+      (feed_1_init_region
+          (:target floor)
+          (:ranges (
+              (0.190 0.041 0.204 0.055)
+            )
+          )
+      )
+      (feed_2_init_region
+          (:target floor)
+          (:ranges (
+              (0.026 -0.332 0.040 -0.318)
+            )
+          )
+      )
+      (feed_3_init_region
+          (:target floor)
+          (:ranges (
+              (-0.038 -0.083 -0.024 -0.069)
+            )
+          )
+      )
+      (feed_4_init_region
+          (:target floor)
+          (:ranges (
+              (-0.235 -0.280 -0.221 -0.266)
+            )
+          )
+      )
+      (feed_5_init_region
+          (:target floor)
+          (:ranges (
+              (-0.405 0.283 -0.391 0.297)
+            )
+          )
+      )
+      (feed_6_init_region
+          (:target floor)
+          (:ranges (
+              (-0.300 -0.268 -0.286 -0.254)
+            )
+          )
+      )
+      (feed_7_init_region
+          (:target floor)
+          (:ranges (
+              (-0.065 0.252 -0.051 0.266)
+            )
+          )
+      )
+      (feed_8_init_region
+          (:target floor)
+          (:ranges (
+              (-0.483 -0.026 -0.469 -0.012)
+            )
+          )
+      )
+      (feed_9_init_region
+          (:target floor)
+          (:ranges (
+              (-0.462 0.050 -0.448 0.064)
+            )
+          )
+      )
+      (feed_10_init_region
+          (:target floor)
+          (:ranges (
+              (-0.424 0.143 -0.410 0.157)
+            )
+          )
+      )
+      (feed_11_init_region
+          (:target floor)
+          (:ranges (
+              (-0.041 0.262 -0.027 0.276)
+            )
+          )
+      )
+      (feed_12_init_region
+          (:target floor)
+          (:ranges (
+              (-0.140 -0.198 -0.126 -0.184)
+            )
+          )
+      )
+      (feed_13_init_region
+          (:target floor)
+          (:ranges (
+              (0.150 0.128 0.164 0.142)
+            )
+          )
+      )
+      (feed_14_init_region
+          (:target floor)
+          (:ranges (
+              (-0.220 -0.157 -0.206 -0.143)
+            )
+          )
+      )
+      (feed_15_init_region
+          (:target floor)
+          (:ranges (
+              (-0.118 0.243 -0.104 0.257)
+            )
+          )
+      )
+      (manure_1_init_region
+          (:target floor)
+          (:ranges (
+              (-0.007 0.011 0.017 0.035)
+            )
+          )
+      )
+      (manure_2_init_region
+          (:target floor)
+          (:ranges (
+              (-0.212 -0.303 -0.188 -0.279)
+            )
+          )
+      )
+      (manure_3_init_region
+          (:target floor)
+          (:ranges (
+              (-0.473 0.003 -0.449 0.027)
+            )
+          )
+      )
+      (manure_4_init_region
+          (:target floor)
+          (:ranges (
+              (-0.491 -0.322 -0.467 -0.298)
+            )
+          )
+      )
+      (contain_region
+          (:target basket_1)
+      )
+    )
+
+  (:fixtures
+    floor - floor
+  )
+
+  (:objects
+    basket_1 - basket
+    dead_chick_1 dead_chick_2 dead_chick_3 - dead_chick
+    chick_1 chick_3 - chick_warm_green
+    chick_2 chick_4 chick_5 chick_7 - chick_warm_yellow
+    chick_6 - chick_warm_orange
+    straw_1 straw_2 straw_3 straw_4 straw_5 straw_6 straw_7 straw_8 straw_9 straw_10 straw_11 straw_12 straw_13 straw_14 straw_15 straw_16 straw_17 straw_18 straw_19 straw_20 straw_21 straw_22 straw_23 straw_24 straw_25 straw_26 straw_27 straw_28 straw_29 straw_30 straw_31 straw_32 straw_33 straw_34 straw_35 straw_36 straw_37 straw_38 straw_39 straw_40 straw_41 straw_42 straw_43 straw_44 straw_45 straw_46 straw_47 straw_48 straw_49 straw_50 - straw_piece
+    feed_1 feed_2 feed_3 feed_4 feed_5 feed_6 feed_7 feed_8 feed_9 feed_10 feed_11 feed_12 feed_13 feed_14 feed_15 - feed_pellet
+    manure_1 manure_2 manure_3 manure_4 - manure_pile
+  )
+
+  (:obj_of_interest
+    dead_chick_1
+    basket_1
+  )
+
+  (:init
+    (On basket_1 floor_basket_1_init_region)
+    (On dead_chick_1 floor_dead_chick_1_init_region)
+    (On dead_chick_2 floor_dead_chick_2_init_region)
+    (On dead_chick_3 floor_dead_chick_3_init_region)
+    (On chick_1 floor_chick_1_init_region)
+    (On chick_2 floor_chick_2_init_region)
+    (On chick_3 floor_chick_3_init_region)
+    (On chick_4 floor_chick_4_init_region)
+    (On chick_5 floor_chick_5_init_region)
+    (On chick_6 floor_chick_6_init_region)
+    (On chick_7 floor_chick_7_init_region)
+    (On straw_1 floor_straw_1_init_region)
+    (On straw_2 floor_straw_2_init_region)
+    (On straw_3 floor_straw_3_init_region)
+    (On straw_4 floor_straw_4_init_region)
+    (On straw_5 floor_straw_5_init_region)
+    (On straw_6 floor_straw_6_init_region)
+    (On straw_7 floor_straw_7_init_region)
+    (On straw_8 floor_straw_8_init_region)
+    (On straw_9 floor_straw_9_init_region)
+    (On straw_10 floor_straw_10_init_region)
+    (On straw_11 floor_straw_11_init_region)
+    (On straw_12 floor_straw_12_init_region)
+    (On straw_13 floor_straw_13_init_region)
+    (On straw_14 floor_straw_14_init_region)
+    (On straw_15 floor_straw_15_init_region)
+    (On straw_16 floor_straw_16_init_region)
+    (On straw_17 floor_straw_17_init_region)
+    (On straw_18 floor_straw_18_init_region)
+    (On straw_19 floor_straw_19_init_region)
+    (On straw_20 floor_straw_20_init_region)
+    (On straw_21 floor_straw_21_init_region)
+    (On straw_22 floor_straw_22_init_region)
+    (On straw_23 floor_straw_23_init_region)
+    (On straw_24 floor_straw_24_init_region)
+    (On straw_25 floor_straw_25_init_region)
+    (On straw_26 floor_straw_26_init_region)
+    (On straw_27 floor_straw_27_init_region)
+    (On straw_28 floor_straw_28_init_region)
+    (On straw_29 floor_straw_29_init_region)
+    (On straw_30 floor_straw_30_init_region)
+    (On straw_31 floor_straw_31_init_region)
+    (On straw_32 floor_straw_32_init_region)
+    (On straw_33 floor_straw_33_init_region)
+    (On straw_34 floor_straw_34_init_region)
+    (On straw_35 floor_straw_35_init_region)
+    (On straw_36 floor_straw_36_init_region)
+    (On straw_37 floor_straw_37_init_region)
+    (On straw_38 floor_straw_38_init_region)
+    (On straw_39 floor_straw_39_init_region)
+    (On straw_40 floor_straw_40_init_region)
+    (On straw_41 floor_straw_41_init_region)
+    (On straw_42 floor_straw_42_init_region)
+    (On straw_43 floor_straw_43_init_region)
+    (On straw_44 floor_straw_44_init_region)
+    (On straw_45 floor_straw_45_init_region)
+    (On straw_46 floor_straw_46_init_region)
+    (On straw_47 floor_straw_47_init_region)
+    (On straw_48 floor_straw_48_init_region)
+    (On straw_49 floor_straw_49_init_region)
+    (On straw_50 floor_straw_50_init_region)
+    (On feed_1 floor_feed_1_init_region)
+    (On feed_2 floor_feed_2_init_region)
+    (On feed_3 floor_feed_3_init_region)
+    (On feed_4 floor_feed_4_init_region)
+    (On feed_5 floor_feed_5_init_region)
+    (On feed_6 floor_feed_6_init_region)
+    (On feed_7 floor_feed_7_init_region)
+    (On feed_8 floor_feed_8_init_region)
+    (On feed_9 floor_feed_9_init_region)
+    (On feed_10 floor_feed_10_init_region)
+    (On feed_11 floor_feed_11_init_region)
+    (On feed_12 floor_feed_12_init_region)
+    (On feed_13 floor_feed_13_init_region)
+    (On feed_14 floor_feed_14_init_region)
+    (On feed_15 floor_feed_15_init_region)
+    (On manure_1 floor_manure_1_init_region)
+    (On manure_2 floor_manure_2_init_region)
+    (On manure_3 floor_manure_3_init_region)
+    (On manure_4 floor_manure_4_init_region)
+  )
+
+  (:goal
+    (And (In dead_chick_1 basket_1_contain_region) (In dead_chick_2 basket_1_contain_region) (In dead_chick_3 basket_1_contain_region))
+  )
+
+)

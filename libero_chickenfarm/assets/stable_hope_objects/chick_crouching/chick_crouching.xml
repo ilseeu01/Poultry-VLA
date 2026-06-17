@@ -1,0 +1,36 @@
+<mujoco model="chick_crouching">
+  <asset>
+    <!-- scale=0.00124 → ~7cm 병아리 (raw Z span 56.4 * 0.00124 ≈ 0.070 m) -->
+    <mesh name="chick_vis" file="Chick_crouching.stl" scale="0.00124 0.00124 0.00124"/>
+    <mesh name="chick_col" file="Chick_crouching.stl" scale="0.00124 0.00124 0.00124" maxhullvert="64"/>
+    <material name="chick_yellow" rgba="1.0 0.85 0.30 1.0" specular="0.10" shininess="0.05"/>
+  </asset>
+  <worldbody>
+    <body>
+      <body name="object">
+        <!-- 무게중심을 발 근처 z=0.005, 회전 관성 ↑ -->
+        <inertial pos="0 0 0.005" mass="0.1" diaginertia="2e-4 2e-4 1e-4"/>
+
+        <geom type="mesh" mesh="chick_vis" material="chick_yellow"
+              friction="1.5 0.5 0.1"
+              solimp="0.998 0.998 0.001" solref="0.001 1"
+              conaffinity="0" contype="0" group="1"/>
+        <geom type="mesh" mesh="chick_col"
+              density="0" friction="1.5 0.5 0.1"
+              solimp="0.998 0.998 0.001" solref="0.001 1"
+              group="0" rgba="0.8 0.8 0.8 0"/>
+
+        <!-- 발판 역할 cylinder -->
+        <geom name="chick_crouching_foot_pad" type="cylinder" size="0.025 0.003"
+              pos="0 0 0.003" density="0"
+              friction="2.0 0.5 0.1"
+              solimp="0.998 0.998 0.001" solref="0.001 1"
+              group="0" contype="1" conaffinity="1" rgba="0 0 0 0"/>
+      </body>
+      <!-- LIBERO placement reference sites -->
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0"          name="bottom_site"/>
+      <site rgba="0 0 0 0" size="0.005" pos="0 0 0.070"      name="top_site"/>
+      <site rgba="0 0 0 0" size="0.005" pos="0.030 0.030 0"  name="horizontal_radius_site"/>
+    </body>
+  </worldbody>
+</mujoco>

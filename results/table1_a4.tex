@@ -1,0 +1,44 @@
+% =====================================================================
+%  Table 1 — A4 한 페이지 버전 (표를 페이지 중앙에 배치, 캡션은 A4 폭)
+%  컴파일: tectonic -X compile table1_a4.tex   (또는 xelatex)
+% =====================================================================
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{kotex}
+\usepackage{caption}
+\captionsetup{labelfont=bf, font=small, skip=8pt}  % 캡션은 본문(A4) 폭으로 줄바꿈
+
+\newcommand{\best}[1]{\textbf{#1}}
+\pagestyle{empty}
+
+\begin{document}
+% --- 표를 페이지 세로 중앙에 배치 ---
+\null\vfill
+\begin{center}
+\captionof{table}{폐사체 수거 작업의 단계별 성능 개선 결과. 초기 OpenVLA 모델은
+폐사 개체를 탐지하고 접근할 수 있었으나 파지에 실패하였다. DAgger를 적용하여
+파지 능력을 회복하였으며, 이후 객체 물리 특성을 개선함으로써 최종적으로 94\%의
+작업 성공률을 달성하였다.}
+\label{tab:headline}
+
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l c c}
+\toprule
+Stage & Key change & Grasp & Full task \\
+\midrule
+Base                 & multi-view RGB, proprio       & 0/8          & 0\% \\
+OFT                  & action chunking               & 0/8          & 0\% \\
+Wrist depth          & wrist (z-depth)               & 0/8          & 0\% \\
+\best{DAgger}        & on-policy relabeling          & \best{7/8}   & 0\% \\
+\midrule
+Firm-hold            & friction, inertia $\uparrow$  & 12/16        & 75\% \\
+\best{Thick capsule} & grasp capsule $\uparrow$      & \best{17/18} & \best{94\%} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vfill\null
+
+\end{document}

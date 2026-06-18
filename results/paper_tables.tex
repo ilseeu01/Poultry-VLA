@@ -15,6 +15,17 @@
 
 \newcommand{\best}[1]{\textbf{#1}}
 
+% 표 라벨을 "표 N." (한글, 마침표) 로
+\renewcommand{\tablename}{표}
+\makeatletter
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \sbox\@tempboxa{#1. #2}%
+  \ifdim \wd\@tempboxa >\hsize #1. #2\par \else
+    \global\@minipagefalse \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}\fi
+  \vskip\belowcaptionskip}
+\makeatother
+
 \begin{document}
 
 % =====================================================================
@@ -45,7 +56,32 @@ Firm-hold            & friction, inertia $\uparrow$  & 12/16        & 75\% \\
 \end{table}
 
 % =====================================================================
-% Table 2 — 메인: 실패 → 성공 경로
+% Table 2 — 최종 시스템 성능 평가 (n=50)
+% =====================================================================
+\begin{table}[t]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\caption{최종 OpenVLA 기반 폐사체 수거 시스템의 성능 평가 결과($n=50$). 개발된
+시스템은 50회 반복 평가에서 작업 성공률 90.0\%, 파지 성공률 92.0\%를 달성하였으며,
+성공한 모든 사례에서 폐사체를 바구니 중심 5\,cm 이내에 투하하였다.}
+\label{tab:performance}
+\makebox[\linewidth][c]{%
+\begin{tabular}{l c}
+\toprule
+평가 항목 & 결과 \\
+\midrule
+Task 성공률            & 45/50~~(90.0\%) \\
+Grasp 성공률           & 46/50~~(92.0\%) \\
+투하 정밀도(중앙값)     & 1.34\,cm \\
+투하 정밀도(평균)       & 1.47\,cm \\
+최대 오차              & 3.93\,cm \\
+바구니 중심 $\le 5$\,cm & 45/45~~(100\%) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+% =====================================================================
+% Table 3 — 메인: 실패 → 성공 경로
 % =====================================================================
 \begin{table}[t]
 \centering
@@ -173,34 +209,6 @@ grasp 미실행 & bang-bang 거친 액션 $\Rightarrow$ fine grasp 불능 & \bes
 운반 중 슬립 & 객체 관성 작음 $+$ 얇은 캡슐 & \best{firm-hold $+$ thick capsule} & full $0\to94\%$ \\
 \bottomrule
 \end{tabular}
-\end{table}
-
-% =====================================================================
-% Table 7 — 대규모(n=50) 재평가 : 재현 가능 모델의 폐사체 수거 정밀도
-% =====================================================================
-\begin{table}[t]
-\centering
-\renewcommand{\arraystretch}{1.2}
-\caption{재현 가능한 작동 모델의 대규모 재평가($n=50$, LIBERO 표준 trial 수).
-움직이는 산닭 8마리 사이에서 정지한 폐사체 1마리를 골라 바구니에 투하하는 task를
-50회 측정하였다. task 성공률 90.0\%, 파지 성공률 92.0\%이며, 파지 성공 시 바구니
-중심까지의 투하 정밀도는 중앙값 1.34\,cm로 전부 5\,cm 이내에 안착하였다.
-소표본($n=18$, 83.3\%) 대비 안정적으로 수렴한다.}
-\label{tab:largeeval}
-\makebox[\linewidth][c]{%
-\begin{tabular}{l c}
-\toprule
-지표 (Metric) & 값 ($n=50$) \\
-\midrule
-Task 성공률            & 45/50~~(90.0\%) \\
-Grasp 성공률           & 46/50~~(92.0\%) \\
-\midrule
-투하 정밀도 — 중앙값    & 1.34\,cm \\
-투하 정밀도 — 평균      & 1.47\,cm \\
-투하 정밀도 — 최대      & 3.93\,cm \\
-바구니 중심 $\le 5$\,cm & 45/45~~(100\%) \\
-\bottomrule
-\end{tabular}}
 \end{table}
 
 \end{document}
